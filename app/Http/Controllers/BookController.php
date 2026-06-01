@@ -15,7 +15,7 @@ class BookController extends Controller
     public function store(Request $request) {
         $request->validate([
             'judul'=>'required',
-            'jumlah_halaman'=>'required',
+            'jumlah_halaman'=>'required|numeric',
         ]);
 
         $book = Book::create($request->all());
