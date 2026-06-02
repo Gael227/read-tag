@@ -7,12 +7,6 @@ use App\Models\Annotate;
 use App\Models\Book;
 class AnnotateController extends Controller
 {
-    public function index() {
-        $annotate = Annotate::all();
-        $books = Book::all();
-        return view('/annotate', compact('annotate', 'books'));
-    }
-
     public function store(Request $request) {
         $request->validate([
             'book_id'=>'required',
@@ -21,20 +15,20 @@ class AnnotateController extends Controller
             'tags'=>'required',
         ]);
 
-        $books = Book::findOrFail($request->buku_id);
+        $book = Book::findOrFail($request->book_id);
 
-        if ($request->halaman > $books->jumlah_halaman) {
-            return redirect('/annotate')->with('hasil', "halaman tidak valid");
+        if ($request->halaman > $book->jumlah_halaman) {
+            return redirect()->route('book.show', $book->id);
         }
 
         $annotate = Annotate::create($request->all());
-        return redirect('/annotate');
+        return redirect()->route('book.show', $book->id);
     }
 
     public function edit($id) {
         $annotate = Annotate::findOrFail($id);
-        $books = Book::all();
-        return view('annotate-edit', compact('annotate', 'books'));
+        $book = Book::all();
+        return view('annotate-edit', compact('annotate', 'book'));
     }
 
     public function update(Request $request, $id) {
@@ -46,19 +40,19 @@ class AnnotateController extends Controller
         ]);
 
         $annotate = Annotate::findOrFail($id);
-        $books = Book::findOrFail($request->buku_id);
+        $book = Book::findOrFail($request->book_id);
 
-        if ($request->halaman > $books->jumlah_halaman) {
-            return redirect('/annotate')->with('hasil', "halaman tidak valid");
+        if ($request->halaman > $book->jumlah_halaman) {
+            return redirect()->route('book.show', $book->id)->with('hasil', "halaman tidak valid");
         }
 
         $annotate->update($request->all());
-        return redirect('/annotate');
+        return redirect()->route('book.show', $book->id);
     }
 
     public function destroy($id) {
         $annotate = Annotate::findOrFail($id);
         $annotate->delete();
-        return redirect('/annotate');
+        return redirect()->route('book.show', $annotate->book_id);
     }
 }

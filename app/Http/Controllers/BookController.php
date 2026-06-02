@@ -8,8 +8,8 @@ use App\Models\Book;
 class BookController extends Controller
 {
     public function index() {
-        $books = Book::all();
-        return view('/book', compact('books'));
+        $book = Book::all();
+        return view('book', compact('book'));
     }
 
     public function store(Request $request) {
@@ -22,10 +22,9 @@ class BookController extends Controller
         return redirect('book')->with('hasil', "DATA BUKU BERHASIL DISUBMIT");
     }
 
-    public function show($id) {
-        $books = Book::findOrFail($id);
-        $annotate = $books->annotate;
+    public function show(Book $book) {
+        $book->load('annotate');
 
-        return view('book-detail', compact('books', 'annotate'));
+        return view('book-detail', compact('book', 'annotate'));
     }
 }
