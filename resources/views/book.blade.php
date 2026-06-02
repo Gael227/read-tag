@@ -5,33 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Book Log</title>
+    @vite('resources/css/app.css')
 </head>
-<body>
-    <form action="/book" method="POST">
-        @csrf
-        <h1>FORM INPUT BUKU</h1>
-        <h2>Judul</h2>
-        <input type="text" name="judul">
-        <h2>Total Halaman</h2>
-        <input type="text" name="jumlah_halaman">
-        <br>
-        <button type="submit">SUBMIT</button>
-    </form>
-    <table border="1">
-        <thead>
-            <tr>
-                <td>JUDUL</td>
-                <td>TOTAL HALAMAN</td>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($books as $b)
-                <tr>
-                    <td><a href="/book/{{$b->id}}">{{$b->judul}}</a></td>
-                    <td>{{$b->jumlah_halaman}}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+    <div class="mx-auto max-w-5xl px-6 py-10">
+        <header class="mb-10 rounded-3xl bg-white/90 p-8 shadow-lg shadow-slate-200/80 backdrop-blur-sm">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm uppercase tracking-[0.3em] text-slate-500">Book Log</p>
+                    <h1 class="mt-2 text-3xl font-semibold text-slate-900">Form Input Buku</h1>
+                    <p class="mt-2 max-w-2xl text-slate-600">Tambahkan buku baru dan lihat daftar yang sudah tersimpan.</p>
+                </div>
+                <div class="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700 shadow-inner shadow-slate-200/80">
+                    Total buku: <span class="font-semibold text-slate-900">{{ $books->count() }}</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="mb-10 rounded-3xl bg-white p-8 shadow-lg shadow-slate-200/80">
+            <form action="/book" method="POST" class="space-y-6">
+                @csrf
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <label class="block">
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Judul</span>
+                        <input type="text" name="judul" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100" placeholder="Masukkan judul buku" />
+                    </label>
+                    <label class="block">
+                        <span class="mb-2 block text-sm font-medium text-slate-700">Total Halaman</span>
+                        <input type="text" name="jumlah_halaman" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100" placeholder="Jumlah halaman" />
+                    </label>
+                </div>
+
+                <div>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-200/80">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-900">Daftar Buku</h2>
+                    <p class="text-sm text-slate-600">Klik judul untuk melihat detail buku.</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-3xl border border-slate-200">
+                <table class="min-w-full border-separate border-spacing-0 text-left text-sm">
+                    <thead class="bg-slate-100 text-slate-600">
+                        <tr>
+                            <th class="px-6 py-4 font-medium uppercase tracking-wider">Judul</th>
+                            <th class="px-6 py-4 font-medium uppercase tracking-wider">Total Halaman</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white">
+                        @foreach ($books as $b)
+                            <tr class="border-t border-slate-200 hover:bg-sky-50/80">
+                                <td class="px-6 py-4">
+                                    <a href="/book/{{ $b->id }}" class="font-medium text-slate-900 transition hover:text-sky-600">{{ $b->judul }}</a>
+                                </td>
+                                <td class="px-6 py-4 text-slate-700">{{ $b->jumlah_halaman }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
 </body>
 </html>
