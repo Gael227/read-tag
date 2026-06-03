@@ -18,13 +18,16 @@ class BookController extends Controller
             'jumlah_halaman'=>'required|numeric',
         ]);
 
-        $book = Book::create($request->all());
+        $book = Book::create([
+            'judul'=>strtoupper($request->judul),
+            'jumlah_halaman'=> $request->jumlah_halaman,
+        ]);
         return redirect('book')->with('hasil', "DATA BUKU BERHASIL DISUBMIT");
     }
 
-    public function show(Book $book) {
-        $book->load('annotate');
+    public function show($id) {
+        $book = Book::with('annotates')->findOrFail($id);
 
-        return view('book-detail', compact('book', 'annotate'));
+        return view('book-detail', compact('book'));
     }
 }

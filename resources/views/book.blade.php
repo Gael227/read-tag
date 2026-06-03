@@ -17,7 +17,7 @@
                     <p class="mt-2 max-w-2xl text-slate-600">Tambahkan buku baru dan lihat daftar yang sudah tersimpan.</p>
                 </div>
                 <div class="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700 shadow-inner shadow-slate-200/80">
-                    Total buku: <span class="font-semibold text-slate-900">{{ $books->count() }}</span>
+                    Total buku: <span class="font-semibold text-slate-900">{{ $book->count() }}</span>
                 </div>
             </div>
         </header>
@@ -61,7 +61,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white">
-                        @foreach ($books as $b)
+                        @foreach ($book as $b)
                             <tr class="border-t border-slate-200 hover:bg-sky-50/80">
                                 <td class="px-6 py-4">
                                     <a href="/book/{{ $b->id }}" class="font-medium text-slate-900 transition hover:text-sky-600">{{ $b->judul }}</a>
