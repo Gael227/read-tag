@@ -26,8 +26,9 @@ class BookController extends Controller
     }
 
     public function show($id) {
-        $book = Book::with('annotates')->findOrFail($id);
+        $book = Book::findOrFail($id);
+        $annotates = $book->annotates()->orderBy('halaman', 'asc')->get();
 
-        return view('book-detail', compact('book'));
+        return view('book-detail', compact('book', 'annotates'));
     }
 }

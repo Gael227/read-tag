@@ -96,7 +96,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white">
-                        @forelse ($book->annotates as $a)
+                        @forelse ($annotates as $a)
                             <tr class="border-t border-slate-200 hover:bg-sky-50/80">
                                 <td class="px-6 py-4 text-slate-700">{{ $a->halaman }}</td>
                                 <td class="px-6 py-4 text-slate-900">{{ $a->catatan }}</td>

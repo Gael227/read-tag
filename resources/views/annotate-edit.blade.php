@@ -33,6 +33,8 @@
                     </div>
                 @endif
 
+                <input type="hidden" name="book_id" value="{{$annotate->book_id}}">
+
                 <div class="grid gap-6 sm:grid-cols-2">
                     <label class="block">
                         <span class="mb-2 block text-sm font-medium text-slate-700">Halaman</span>
