@@ -1,8 +1,7 @@
 <?php
 
-use App\Http\Controllers\BookController;
 use App\Http\Controllers\AnnotateController;
-use App\Models\Book;
+use App\Http\Controllers\BookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {

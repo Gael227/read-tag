@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Book Log</title>
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="bg-slate-50 text-slate-900 min-h-screen">
@@ -23,8 +23,9 @@
                     Total buku: <span class="font-semibold text-slate-900">{{ $book->count() }}</span>
                 </div>
                 <form action="{{ route('search.annotate') }}" method="GET" class="flex gap-2">
-                    <input type="text" name="q" placeholder="Cari keyword/tags..."
+                    <input type="text" name="q" id="search-input" placeholder="Cari keyword/tags..."
                         class="rounded-2xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100" />
+                    <ul id="tag-suggestions"></ul>
                     <button type="submit"
                         class="rounded-2xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700">
                         Cari
@@ -132,9 +133,9 @@
             </section>
         @endif
     </div>
-</body>
-
-</html>
+    <script>
+        const allTags = @json($allTags);
+    </script>
 </body>
 
 </html>
