@@ -38,7 +38,7 @@ class BookController extends Controller
 
         $annotates = Annotate::with('book')
             ->where('tags', 'like', '%' . $query . '%')
-            ->orWhere('halaman', 'like', '%' . $query . '%')
+            ->orWhere('catatan', 'like', '%' . $query . '%')
             ->get();
 
         $book = Book::all();
