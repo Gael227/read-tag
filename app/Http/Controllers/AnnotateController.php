@@ -18,7 +18,7 @@ class AnnotateController extends Controller
         $book = Book::findOrFail($request->book_id);
 
         if ($request->halaman > $book->jumlah_halaman) {
-            return redirect()->route('book.show', $book->id)->with('hasil', "halaman tidak valid");
+            return redirect()->route('book.show', $book->id)->with('hasil', "halaman tidak valid"); #mengalihkan user ke route book.show yg biasanya menampilkan detail data berdasarkan ID yg diberikan
         }
 
         $annotate = Annotate::create($request->all());

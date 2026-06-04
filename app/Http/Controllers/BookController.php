@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Annotate;
 use Illuminate\Http\Request;
 use App\Models\Book;
 
@@ -30,5 +31,19 @@ class BookController extends Controller
         $annotates = $book->annotates()->orderBy('halaman', 'asc')->get();
 
         return view('book-detail', compact('book', 'annotates'));
+    }
+
+    public function search(Request $request) {
+        $query = $request->input('q');
+
+        $annotates = Annotate::with('book')
+            ->where('tags', 'like', '%' . $query . '%')
+            ->orWhere('halaman', 'like', '%' . $query . '%')
+            ->get();
+
+        $book = Book::all();
+        $searched = true;
+
+        return view('book', compact('book', 'annotates', 'searched'));
     }
 }
