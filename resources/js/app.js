@@ -45,3 +45,9 @@ input.addEventListener("focus", function () {
         suggestions.appendChild(li);
     });
 });
+
+input.addEventListener("blur", function () {
+    setTimeout(() => {
+        suggestions.classList.add("hidden");
+    }, 150);
+});
