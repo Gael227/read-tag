@@ -120,6 +120,7 @@
                             <tr>
                                 <th class="px-6 py-4 font-medium uppercase tracking-wider">Judul</th>
                                 <th class="px-6 py-4 font-medium uppercase tracking-wider">Total Halaman</th>
+                                <th class="px-6 py-4 font-medium uppercase tracking-wider">Opsi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white">
@@ -130,6 +131,19 @@
                                             class="font-medium text-slate-900 transition hover:text-sky-600">{{ $b->judul }}</a>
                                     </td>
                                     <td class="px-6 py-4 text-slate-700">{{ $b->jumlah_halaman }}</td>
+                                    <td class="px-6 py-4">
+                                        <form action="/book/{{ $b->id }}" method="POST" class="inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" onclick="return confirm('Hapus Data Buku Ini?')"
+                                                class="rounded-2xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-700">
+                                                Delete
+                                            </button>
+                                        </form>
+                                        <a href="/book/{{ $b->id }}/edit"
+                                            class="inline-flex rounded-2xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                                            Edit</a>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Annotate;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BookController extends Controller
 {
@@ -35,6 +36,24 @@ class BookController extends Controller
         return redirect('book')->with('hasil', 'DATA BUKU BERHASIL DISUBMIT');
     }
 
+    public function edit($id)
+    {
+        $book = Book::findOrFail($id);
+
+        return view('book-edit', compact('book'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'judul' => 'required',
+            'jumlah_halaman' => 'require',
+        ]);
+
+        Book::findOrFail($id)->update();
+        return redirect('book')->with('hasil', "DATA BUKU BERHASIL DIPERBARUI");
+    }
+
     public function show($id)
     {
         $book = Book::findOrFail($id);
@@ -62,5 +81,14 @@ class BookController extends Controller
             ->toArray();
 
         return view('book', compact('book', 'annotates', 'searched', 'allTags'));
+    }
+
+    public function destroy($id)
+    {
+        $book = Book::findOrFail($id);
+        $book->annotates()->delete();
+        $book->delete();
+
+        return redirect('book')->with('hasil', "DATA BUKU BERHASIL DIHAPUS");
     }
 }
