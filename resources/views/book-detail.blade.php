@@ -108,8 +108,19 @@
                     </thead>
                     <tbody class="bg-white">
                         @forelse ($annotates as $a)
-                            <tr class="border-t border-slate-200 hover:bg-sky-50/80">
-                                <td class="px-6 py-4 text-slate-700">{{ $a->halaman }}</td>
+                            <tr
+                                class="border-t border-slate-200 hover:bg-sky-50/80 {{ $a->halaman > $book->jumlah_halaman ? 'bg-rose-50/60' : '' }}">
+                                <td class="px-6 py-4 text-slate-700">
+                                    <div class="flex flex-col gap-2">
+                                        <span>{{ $a->halaman }}</span>
+                                        @if ($a->halaman > $book->jumlah_halaman)
+                                            <span
+                                                class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">
+                                                Halaman tidak valid
+                                            </span>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4 text-slate-900">{{ $a->catatan }}</td>
                                 <td class="px-6 py-4 text-slate-700">{{ $a->tags }}</td>
                                 <td class="px-6 py-4 space-x-3">

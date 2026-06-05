@@ -47,10 +47,14 @@ class BookController extends Controller
     {
         $request->validate([
             'judul' => 'required',
-            'jumlah_halaman' => 'require',
+            'jumlah_halaman' => 'required|numeric',
         ]);
 
-        Book::findOrFail($id)->update();
+        Book::findOrFail($id)->update([
+            'judul' => strtoupper($request->judul),
+            'jumlah_halaman' => $request->jumlah_halaman,
+        ]);
+
         return redirect('book')->with('hasil', "DATA BUKU BERHASIL DIPERBARUI");
     }
 

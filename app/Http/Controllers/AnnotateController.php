@@ -43,10 +43,9 @@ class AnnotateController extends Controller
     // EDIT
     public function edit($id)
     {
-        $annotate = Annotate::findOrFail($id);
-        $book = Book::all();
+        $annotate = Annotate::with('book')->findOrFail($id);
 
-        return view('annotate-edit', compact('annotate', 'book'));
+        return view('annotate-edit', compact('annotate'));
     }
 
     // UPDATE
@@ -63,7 +62,9 @@ class AnnotateController extends Controller
         $book = Book::findOrFail($request->book_id);
 
         if ($request->halaman > $book->jumlah_halaman) {
-            return redirect()->route('book.show', $book->id)->with('hasil', 'halaman tidak valid');
+            return redirect()->back()
+                ->withInput()
+                ->with('hasil', 'Halaman tidak valid. Maksimum ' . $book->jumlah_halaman . ' halaman.');
         }
 
         $tags = $request->tags;
