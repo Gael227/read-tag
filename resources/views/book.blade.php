@@ -77,6 +77,10 @@
             transform: translateY(-2px);
         }
 
+        .no-cover .no-cover-placeholder {
+            display: flex !important;
+        }
+
         .tag-pill {
             display: inline-block;
             font-size: 0.7rem;
@@ -247,16 +251,29 @@
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($book as $index => $b)
                         <div
-                            class="book-card anim-fade-up anim-delay-{{ min($index + 1, 3) }} group rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 hover:border-zinc-400 dark:hover:border-zinc-600">
-                            <a href="/book/{{ $b->id }}" class="block mb-4">
-                                <h3
-                                    class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition leading-snug mb-1">
-                                    {{ $b->judul }}
-                                </h3>
-                                <p class="text-xs text-zinc-400 dark:text-zinc-500 font-mono">{{ $b->jumlah_halaman }}
-                                    hal.</p>
+                            class="book-card anim-fade-up anim-delay-{{ min($index + 1, 3) }} group rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden hover:border-zinc-400 dark:hover:border-zinc-600">
+                            <a href="/book/{{ $b->id }}" class="block">
+                                <div class="relative h-44 bg-zinc-100 dark:bg-zinc-800 overflow-hidden"
+                                    data-book-title="{{ $b->judul }}" data-book-id="{{ $b->id }}">
+                                    <img id="cover-{{ $b->id }}" alt="{{ $b->judul }}"
+                                        class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" />
+                                    <div id="placeholder-{{ $b->id }}"
+                                        class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-3xl opacity-20">📖</span>
+                                    </div>
+                                </div>
                             </a>
-                            <div class="flex items-center gap-1.5 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                            <div class="p-4">
+                                <a href="/book/{{ $b->id }}" class="block mb-3">
+                                    <h3
+                                        class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition leading-snug mb-1">
+                                        {{ $b->judul }}
+                                    </h3>
+                                    <p class="text-xs text-zinc-400 dark:text-zinc-500 font-mono">
+                                        {{ $b->jumlah_halaman }} hal.</p>
+                                </a>
+                            </div>
+                            <div class="flex items-center gap-1.5 px-4 pb-4">
                                 <a href="/book/{{ $b->id }}"
                                     class="flex-1 h-7 flex items-center justify-center rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-medium hover:bg-zinc-700 dark:hover:bg-zinc-300 transition">
                                     Buka →

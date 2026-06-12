@@ -106,9 +106,38 @@ function initTagSuggestions() {
     });
 }
 
+// Book Covers via Open Library Search API
+async function initBookCovers() {
+    const covers = [...document.querySelectorAll("[data-book-title]")];
+
+    for (let i = 0; i < covers.length; i++) {
+        const el = covers[i];
+        const title = el.dataset.bookTitle;
+        const id = el.dataset.bookId;
+        try {
+            const res = await fetch(
+                `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1`,
+            );
+            const data = await res.json();
+            const coverId = data.docs?.[0]?.cover_i;
+            if (coverId) {
+                const img = document.getElementById(`cover-${id}`);
+                const placeholder = document.getElementById(
+                    `placeholder-${id}`,
+                );
+                img.src = `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`;
+                img.classList.remove("hidden");
+                if (placeholder) placeholder.remove();
+            }
+        } catch (e) {}
+        await new Promise((r) => setTimeout(r, 300));
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     initDarkMode();
     initBookFormToggle();
     initAnnotateFormToggle();
     initTagSuggestions();
+    initBookCovers();
 });

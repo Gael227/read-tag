@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Annotate;
@@ -8,39 +7,42 @@ use Illuminate\Http\Request;
 
 class AnnotateController extends Controller
 {
-    // STORE/CREATE
+    /**
+     * Store a newly created annotate in storage.
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'book_id' => 'required',
             'catatan' => 'required',
             'halaman' => 'required|numeric',
-            'tags' => 'required',
+            'tags'    => 'required',
         ]);
 
-        $book = Book::findOrFail($request->book_id);
+        $book = Book::findOrFail($validated['book_id']);
 
-        if ($request->halaman > $book->jumlah_halaman) { // jika input halamannya lebih besar dari total halaman buku yg udah ditentukan
-            return redirect()->route('book.show', $book->id)->with('hasil', 'halaman tidak valid'); // mengalihkan user ke route book.show yg biasanya menampilkan detail data berdasarkan ID yg diberikan
+        // Validasi halaman tidak melebihi jumlah halaman buku
+        if ($validated['halaman'] > $book->jumlah_halaman) {
+            return redirect()
+                ->route('book.show', $book->id)
+                ->with('hasil', 'halaman tidak valid');
         }
 
-        $tags = $request->tags;     // $tags mengambil hasil input 'tags'
-        $tags = str_replace(' ', '-', $tags);   // mengganti input ' ' atau spasi, menjadi '-'
-        if (! str_starts_with($tags, '#')) {     // jika di depan nama tags tidak ada tanda #, maka otomatis akan menambahkan tanda #
-            $tags = '#'.$tags;
-        }
+        $tags = $this->normalizeTags($validated['tags']);
 
-        $annotate = Annotate::create([
-            'book_id' => $request->book_id,
-            'catatan' => $request->catatan,
-            'halaman' => $request->halaman,
-            'tags' => $tags,
+        Annotate::create([
+            'book_id' => $validated['book_id'],
+            'catatan' => $validated['catatan'],
+            'halaman' => $validated['halaman'],
+            'tags'    => $tags,
         ]);
 
         return redirect()->route('book.show', $book->id);
     }
 
-    // EDIT
+    /**
+     * Show the form for editing the specified annotate.
+     */
     public function edit($id)
     {
         $annotate = Annotate::with('book')->findOrFail($id);
@@ -48,47 +50,57 @@ class AnnotateController extends Controller
         return view('annotate-edit', compact('annotate'));
     }
 
-    // UPDATE
+    /**
+     * Update the specified annotate in storage.
+     */
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'book_id' => 'required',
             'catatan' => 'required',
             'halaman' => 'required|numeric',
-            'tags' => 'required',
+            'tags'    => 'required',
         ]);
 
+        $book = Book::findOrFail($validated['book_id']);
         $annotate = Annotate::findOrFail($id);
-        $book = Book::findOrFail($request->book_id);
 
-        if ($request->halaman > $book->jumlah_halaman) {
-            return redirect()->back()
+        if ($validated['halaman'] > $book->jumlah_halaman) {
+            return redirect()
+                ->back()
                 ->withInput()
                 ->with('hasil', 'Halaman tidak valid. Maksimum ' . $book->jumlah_halaman . ' halaman.');
         }
 
-        $tags = $request->tags;
-        $tags = str_replace(' ', '-', $tags);
-        if (! str_starts_with($tags, '#')) {
-            $tags = '#'.$tags;
-        }
+        $tags = $this->normalizeTags($validated['tags']);
 
         $annotate->update([
-            'book_id' => $request->book_id,
-            'catatan' => $request->catatan,
-            'halaman' => $request->halaman,
-            'tags' => $tags,
+            'book_id' => $validated['book_id'],
+            'catatan' => $validated['catatan'],
+            'halaman' => $validated['halaman'],
+            'tags'    => $tags,
         ]);
 
         return redirect()->route('book.show', $book->id);
     }
 
-    // DESTROY/DELETE
+    /**
+     * Remove the specified annotate from storage.
+     */
     public function destroy($id)
     {
         $annotate = Annotate::findOrFail($id);
         $annotate->delete();
 
         return redirect()->route('book.show', $annotate->book_id);
+    }
+
+    /**
+     * Normalize tags: replace spaces with hyphens and ensure it starts with '#'.
+     */
+    protected function normalizeTags(string $tags): string
+    {
+        $tags = str_replace(' ', '-', $tags);
+        return str_starts_with($tags, '#') ? $tags : '#'.$tags;
     }
 }

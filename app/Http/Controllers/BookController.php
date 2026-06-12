@@ -5,94 +5,114 @@ namespace App\Http\Controllers;
 use App\Models\Annotate;
 use App\Models\Book;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class BookController extends Controller
 {
+    /**
+     * Display all books with unique tags.
+     */
     public function index()
     {
-        $book = Book::all();
-        $allTags = Annotate::pluck('tags')
-            ->flatMap(fn ($t) => explode(' ', $t))
-            ->unique()
-            ->values()
-            ->toArray();
+        $books = Book::all();
+        $allTags = $this->getAllUniqueTags();
 
-        return view('book', compact('book', 'allTags'));
+        return view('book', compact('books', 'allTags'));
     }
 
+    /**
+     * Store a newly created book.
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul' => 'required',
             'jumlah_halaman' => 'required|numeric',
         ]);
 
-        $book = Book::create([
-            'judul' => strtoupper($request->judul),
-            'jumlah_halaman' => $request->jumlah_halaman,
+        Book::create([
+            'judul' => strtoupper($validated['judul']),
+            'jumlah_halaman' => $validated['jumlah_halaman'],
         ]);
 
         return redirect('book')->with('hasil', 'DATA BUKU BERHASIL DISUBMIT');
     }
 
-    public function edit($id)
+    /**
+     * Show edit form for specific book.
+     */
+    public function edit(Book $book)
     {
-        $book = Book::findOrFail($id);
-
         return view('book-edit', compact('book'));
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update specified book.
+     */
+    public function update(Request $request, Book $book)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul' => 'required',
             'jumlah_halaman' => 'required|numeric',
         ]);
 
-        Book::findOrFail($id)->update([
-            'judul' => strtoupper($request->judul),
-            'jumlah_halaman' => $request->jumlah_halaman,
+        $book->update([
+            'judul' => strtoupper($validated['judul']),
+            'jumlah_halaman' => $validated['jumlah_halaman'],
         ]);
 
-        return redirect('book')->with('hasil', "DATA BUKU BERHASIL DIPERBARUI");
+        return redirect('book')->with('hasil', 'DATA BUKU BERHASIL DIPERBARUI');
     }
 
-    public function show($id)
+    /**
+     * Display book details with its annotations.
+     */
+    public function show(Book $book)
     {
-        $book = Book::findOrFail($id);
         $annotates = $book->annotates()->orderBy('halaman', 'asc')->get();
 
         return view('book-detail', compact('book', 'annotates'));
     }
 
+    /**
+     * Search annotations by tag or note content.
+     */
     public function search(Request $request)
     {
         $query = $request->input('q');
 
         $annotates = Annotate::with('book')
-            ->where('tags', 'like', '%'.$query.'%')
-            ->orWhere('catatan', 'like', '%'.$query.'%')
+            ->where('tags', 'like', "%{$query}%")
+            ->orWhere('catatan', 'like', "%{$query}%")
             ->get();
 
-        $book = Book::all();
-        $searched = true;
+        $books = Book::all();
+        $allTags = $this->getAllUniqueTags();
 
-        $allTags = Annotate::pluck('tags')      // mengambil data semua 'tags' dari semua baris tabel Annotate. dan disimpen dalam collection of strings
-            ->flatMap(fn ($t) => explode(' ', $t))      // tiap string dipecah berdasarkan spasi jadi array kecil, lalu hasilnya digabung jadi 1 array
-            ->unique()      // membuang duplikat jika ada
-            ->values()      // reset index array jadi mulai dari 0 lagi
-            ->toArray();
-
-        return view('book', compact('book', 'annotates', 'searched', 'allTags'));
+        return view('book', compact('books', 'annotates', 'allTags'))
+            ->with('searched', true);
     }
 
-    public function destroy($id)
+    /**
+     * Delete book and its annotations.
+     */
+    public function destroy(Book $book)
     {
-        $book = Book::findOrFail($id);
         $book->annotates()->delete();
         $book->delete();
 
-        return redirect('book')->with('hasil', "DATA BUKU BERHASIL DIHAPUS");
+        return redirect('book')->with('hasil', 'DATA BUKU BERHASIL DIHAPUS');
+    }
+
+    /**
+     * Get all unique tags from annotations.
+     */
+    private function getAllUniqueTags(): array
+    {
+        return Annotate::pluck('tags')
+            ->flatMap(fn ($tags) => explode(' ', $tags))
+            ->unique()
+            ->values()
+            ->toArray();
     }
 }
+
