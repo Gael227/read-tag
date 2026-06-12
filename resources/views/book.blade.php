@@ -7,186 +7,288 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Book Log</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .anim-fade-up {
+            animation: fadeUp 0.35s ease both;
+        }
+
+        .anim-fade-in {
+            animation: fadeIn 0.25s ease both;
+        }
+
+        .anim-delay-1 {
+            animation-delay: 0.05s;
+        }
+
+        .anim-delay-2 {
+            animation-delay: 0.10s;
+        }
+
+        .anim-delay-3 {
+            animation-delay: 0.15s;
+        }
+
+        #book-input-form {
+            display: grid;
+            grid-template-rows: 0fr;
+            opacity: 0;
+            transition: grid-template-rows 0.3s ease, opacity 0.25s ease, margin 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        #book-input-form.open {
+            grid-template-rows: 1fr;
+            opacity: 1;
+            margin-bottom: 2.5rem;
+        }
+
+        #book-input-form>.inner {
+            min-height: 0;
+        }
+
+        .book-card {
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .book-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .tag-pill {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+    </style>
 </head>
 
-<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
-    <div class="mx-auto max-w-6xl px-6 py-8">
-        <!-- Header -->
-        <header class="mb-10 rounded-2xl bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 shadow-sm dark:shadow-lg border border-slate-200 dark:border-slate-800 transition-colors duration-300">
-            <div class="flex flex-col gap-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex-1">
-                        <p class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">Book Log</p>
-                        <h1 class="mt-2 text-4xl font-bold text-slate-900 dark:text-white">Form Input Buku</h1>
-                        <p class="mt-2 text-slate-600 dark:text-slate-300">Kelola dan catat buku bacaan Anda dengan mudah</p>
+<body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen antialiased">
+
+    {{-- NAV --}}
+    <nav
+        class="sticky top-0 z-30 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
+        <div class="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between">
+            <span class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">read-log</span>
+            <div class="flex items-center gap-3">
+                {{-- Search --}}
+                <form action="{{ route('search.annotate') }}" method="GET" class="flex items-center gap-2">
+                    <div class="relative">
+                        <input type="text" name="q" id="search-input" autocomplete="off"
+                            placeholder="Cari tag atau catatan…"
+                            class="h-8 w-52 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 pl-3 pr-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none transition focus:border-zinc-500 dark:focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200 dark:focus:ring-zinc-700" />
+                        <ul id="tag-suggestions"
+                            class="absolute left-0 top-full z-50 mt-1 hidden w-full rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 py-1 shadow-lg text-xs overflow-hidden">
+                        </ul>
                     </div>
-                    <button id="dark-mode-toggle" class="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-lg transition-colors duration-300">
-                        🌙
+                    <button type="submit"
+                        class="h-8 px-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition">
+                        Cari
+                    </button>
+                </form>
+                {{-- Dark mode toggle --}}
+                <button id="dark-mode-toggle"
+                    class="h-8 w-8 flex items-center justify-center rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition text-sm"
+                    aria-label="Toggle dark mode">
+                    🌙
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-5xl px-6 py-12">
+
+        {{-- HERO --}}
+        <div class="anim-fade-up mb-10">
+            <p class="text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-500 font-medium mb-2">Koleksi buku
+            </p>
+            <div class="flex items-end justify-between gap-4">
+                <h1 class="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+                    Perpustakaan Saya
+                </h1>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-xs text-zinc-400 dark:text-zinc-500">{{ $book->count() }} buku</span>
+                    <button id="toggle-form-btn"
+                        class="h-8 px-4 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-700 dark:hover:bg-zinc-300 transition">
+                        + Tambah
                     </button>
                 </div>
+            </div>
+        </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-                    <div class="flex items-center gap-3 px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                        <span class="text-sm text-slate-600 dark:text-slate-400">Total buku:</span>
-                        <span class="text-lg font-bold text-slate-900 dark:text-white">{{ $book->count() }}</span>
-                    </div>
-
-                    <form action="{{ route('search.annotate') }}" method="GET" class="flex gap-2">
-                        <div class="relative flex-1 sm:flex-auto">
-                            <input type="text" name="q" id="search-input" autocomplete="off"
-                                placeholder="Cari keyword/tags..."
-                                class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-900" />
-                            <ul id="tag-suggestions"
-                                class="absolute left-0 top-full z-10 mt-1 hidden w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-1 shadow-lg dark:shadow-slate-950">
-                            </ul>
+        {{-- FORM (collapsed by default) --}}
+        <div id="book-input-form">
+            <div class="inner">
+                <div
+                    class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-6 mb-0">
+                    <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-4">
+                        Buku baru</p>
+                    <form action="/book" method="POST">
+                        @csrf
+                        <div class="grid gap-4 sm:grid-cols-2 mb-4">
+                            <label class="block">
+                                <span
+                                    class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">Judul</span>
+                                <input type="text" name="judul" autocomplete="off"
+                                    class="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 outline-none transition focus:border-zinc-500 dark:focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 dark:focus:ring-zinc-800"
+                                    placeholder="Judul buku" />
+                            </label>
+                            <label class="block">
+                                <span class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">Total
+                                    halaman</span>
+                                <input type="number" name="jumlah_halaman" autocomplete="off"
+                                    class="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 outline-none transition focus:border-zinc-500 dark:focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 dark:focus:ring-zinc-800"
+                                    placeholder="e.g. 500" />
+                            </label>
                         </div>
-                        <button type="submit"
-                            class="rounded-lg bg-sky-600 hover:bg-sky-700 dark:bg-sky-700 dark:hover:bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition">
-                            Cari
-                        </button>
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                class="h-8 px-4 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-700 dark:hover:bg-zinc-300 transition">
+                                Simpan
+                            </button>
+                            <button type="button" id="close-form-btn"
+                                class="h-8 px-4 rounded-md border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
+                                Batal
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
-        </header>
-
-        <!-- Form Input Section -->
-        <section id="book-input-form" class="mb-10 hidden rounded-2xl bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 shadow-sm dark:shadow-lg border border-slate-200 dark:border-slate-800 transition-all duration-300">
-            <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">Tambah Buku Baru</h2>
-            <form action="/book" method="POST" class="space-y-6">
-                @csrf
-                <div class="grid gap-6 sm:grid-cols-2">
-                    <label class="block">
-                        <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Judul</span>
-                        <input type="text" name="judul" autocomplete="off"
-                            class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-900"
-                            placeholder="Masukkan judul buku" />
-                    </label>
-                    <label class="block">
-                        <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Total Halaman</span>
-                        <input type="text" name="jumlah_halaman" autocomplete="off"
-                            class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-900"
-                            placeholder="Jumlah halaman" />
-                    </label>
-                </div>
-
-                <div class="flex gap-3">
-                    <button type="submit"
-                        class="inline-flex items-center justify-center rounded-lg bg-sky-600 hover:bg-sky-700 dark:bg-sky-700 dark:hover:bg-sky-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition">
-                        Simpan Buku
-                    </button>
-                    <button type="button" id="close-form-btn"
-                        class="inline-flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-                        onclick="document.getElementById('book-input-form').classList.add('hidden'); document.getElementById('toggle-form-btn').textContent = '+ Tambah Buku'; document.getElementById('toggle-form-btn').classList.add('bg-sky-600', 'hover:bg-sky-700'); document.getElementById('toggle-form-btn').classList.remove('bg-slate-600', 'hover:bg-slate-700');">
-                        Batal
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <!-- Toggle Form Button -->
-        <div class="mb-10 flex gap-3">
-            <button id="toggle-form-btn"
-                class="inline-flex items-center justify-center rounded-lg bg-sky-600 hover:bg-sky-700 px-6 py-3 text-sm font-semibold text-white shadow-md transition">
-                + Tambah Buku
-            </button>
         </div>
 
+        {{-- SEARCH RESULTS --}}
         @if (isset($searched) && $searched)
-            <!-- Search Results -->
-            <div class="mb-8">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div class="anim-fade-up mb-10">
+                <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Hasil Pencarian</h2>
-                        <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Ditemukan hasil yang sesuai dengan pencarian Anda</p>
+                        <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Hasil pencarian</h2>
+                        <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{{ $annotates->count() }} anotasi
+                            ditemukan</p>
                     </div>
                     <a href="/book"
-                        class="inline-flex items-center justify-center rounded-lg bg-slate-600 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 px-4 py-2 text-sm font-semibold text-white transition">
-                        Tampilkan Semua
+                        class="text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition underline underline-offset-2">
+                        Lihat semua buku
                     </a>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <table class="min-w-full text-left text-sm">
-                        <thead class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                            <tr>
-                                <th class="px-6 py-4 font-semibold text-slate-700 dark:text-slate-300 uppercase text-xs tracking-wider">Halaman</th>
-                                <th class="px-6 py-4 font-semibold text-slate-700 dark:text-slate-300 uppercase text-xs tracking-wider">Catatan</th>
-                                <th class="px-6 py-4 font-semibold text-slate-700 dark:text-slate-300 uppercase text-xs tracking-wider">Tags</th>
-                                <th class="px-6 py-4 font-semibold text-slate-700 dark:text-slate-300 uppercase text-xs tracking-wider">Dari Buku</th>
+                <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 w-20">
+                                    Hal.</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                                    Catatan</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                                    Tags</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                                    Buku</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                        <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/60 bg-white dark:bg-zinc-950">
                             @forelse($annotates as $a)
-                                <tr class="hover:bg-sky-50 dark:hover:bg-slate-800 transition">
-                                    <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $a->halaman }}</td>
-                                    <td class="px-6 py-4 text-slate-900 dark:text-white">{{ Str::limit($a->catatan, 50) }}</td>
-                                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 text-xs"><span class="inline-block bg-slate-200 dark:bg-slate-700 px-3 py-1 rounded-full">{{ $a->tags }}</span></td>
-                                    <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $a->book->judul }}</td>
+                                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
+                                    <td class="px-4 py-3 text-zinc-500 dark:text-zinc-400 font-mono text-xs">
+                                        {{ $a->halaman }}</td>
+                                    <td class="px-4 py-3 text-zinc-800 dark:text-zinc-200 max-w-xs">
+                                        {{ Str::limit($a->catatan, 60) }}</td>
+                                    <td class="px-4 py-3">
+                                        <span
+                                            class="tag-pill bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">{{ $a->tags }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-zinc-500 dark:text-zinc-400 text-xs">{{ $a->book->judul }}
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-10 text-center text-slate-600 dark:text-slate-400">Tidak ada hasil ditemukan</td>
+                                    <td colspan="4"
+                                        class="px-4 py-10 text-center text-zinc-400 dark:text-zinc-500 text-sm">
+                                        Tidak ada hasil ditemukan.
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            {{-- BOOK GRID --}}
         @else
-            <!-- Books List -->
-            <section class="rounded-2xl bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 shadow-sm dark:shadow-lg border border-slate-200 dark:border-slate-800">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Daftar Buku</h2>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm mt-2">Klik pada buku untuk melihat detail dan menambahkan catatan</p>
-                </div>
-
-                @if($book->count() > 0)
-                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        @foreach ($book as $b)
-                            <div class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md hover:border-sky-300 dark:hover:border-sky-700 transition-all duration-300">
-                                <a href="/book/{{ $b->id }}" class="block">
-                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition mb-3">
-                                        {{ $b->judul }}
-                                    </h3>
-                                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                                        📖 <span class="font-semibold">{{ $b->jumlah_halaman }}</span> halaman
-                                    </p>
+            @if ($book->count() > 0)
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($book as $index => $b)
+                        <div
+                            class="book-card anim-fade-up anim-delay-{{ min($index + 1, 3) }} group rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 hover:border-zinc-400 dark:hover:border-zinc-600">
+                            <a href="/book/{{ $b->id }}" class="block mb-4">
+                                <h3
+                                    class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition leading-snug mb-1">
+                                    {{ $b->judul }}
+                                </h3>
+                                <p class="text-xs text-zinc-400 dark:text-zinc-500 font-mono">{{ $b->jumlah_halaman }}
+                                    hal.</p>
+                            </a>
+                            <div class="flex items-center gap-1.5 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                                <a href="/book/{{ $b->id }}"
+                                    class="flex-1 h-7 flex items-center justify-center rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-medium hover:bg-zinc-700 dark:hover:bg-zinc-300 transition">
+                                    Buka →
                                 </a>
-
-                                <div class="flex items-center gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                    <form action="/book/{{ $b->id }}" method="POST" class="inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Hapus buku ini?')"
-                                            class="rounded-lg bg-rose-600 hover:bg-rose-700 px-3 py-2 text-xs font-semibold text-white transition">
-                                            🗑️ Hapus
-                                        </button>
-                                    </form>
-
-                                    <a href="/book/{{ $b->id }}/edit"
-                                        class="inline-flex rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
-                                        ✏️ Edit
-                                    </a>
-
-                                    <a href="/book/{{ $b->id }}"
-                                        class="ml-auto inline-flex items-center rounded-lg bg-sky-600 hover:bg-sky-700 px-3 py-2 text-xs font-semibold text-white transition">
-                                        👁️ Detail →
-                                    </a>
-                                </div>
+                                <a href="/book/{{ $b->id }}/edit"
+                                    class="h-7 w-7 flex items-center justify-center rounded-md border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition text-xs">
+                                    ✏
+                                </a>
+                                <form action="/book/{{ $b->id }}" method="POST" class="inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" onclick="return confirm('Hapus buku ini?')"
+                                        class="h-7 w-7 flex items-center justify-center rounded-md border border-zinc-200 dark:border-zinc-700 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 hover:border-rose-200 dark:hover:border-rose-800 transition text-xs">
+                                        ✕
+                                    </button>
+                                </form>
                             </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-center py-12">
-                        <p class="text-slate-500 dark:text-slate-400 text-lg">📚 Belum ada buku. Mulai tambahkan buku pertama Anda!</p>
-                    </div>
-                @endif
-            </section>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div
+                    class="anim-fade-in rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 py-20 text-center">
+                    <p class="text-sm text-zinc-400 dark:text-zinc-500">Belum ada buku. Mulai tambahkan!</p>
+                </div>
+            @endif
         @endif
-    </div>
+
+    </main>
 
     <script>
-        const allTags = @json($allTags);
+        window.allTags = @json($allTags);
     </script>
 </body>
 
