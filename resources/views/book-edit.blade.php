@@ -1,70 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Edit Buku</title>
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-slate-50 text-slate-900 min-h-screen">
-    <div class="mx-auto max-w-4xl px-6 py-10">
-        <header class="mb-10 rounded-3xl bg-white/90 p-8 shadow-lg shadow-slate-200/80 backdrop-blur-sm">
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
+    <div class="mx-auto max-w-2xl px-6 py-8">
+        <!-- Header -->
+        <header class="mb-10 rounded-2xl bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 shadow-sm dark:shadow-lg border border-slate-200 dark:border-slate-800 transition-colors duration-300">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-sm uppercase tracking-[0.3em] text-slate-500">Edit Buku</p>
-                    <h1 class="mt-2 text-3xl font-semibold text-slate-900">Perbarui Data Buku</h1>
-                    <p class="mt-2 max-w-2xl text-slate-600">Ubah judul atau jumlah halaman untuk buku yang sudah
-                        tersimpan.</p>
+                    <p class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">Edit Buku</p>
+                    <h1 class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">Perbarui Data Buku</h1>
+                    <p class="mt-2 text-slate-600 dark:text-slate-300">Ubah judul atau jumlah halaman untuk buku yang sudah tersimpan</p>
                 </div>
-                <div class="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700 shadow-inner shadow-slate-200/80">
-                    Buku ID: <span class="font-semibold text-slate-900">{{ $book->id }}</span>
+                <div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-700 dark:text-slate-300 shadow-sm">
+                    ID: <span class="font-bold text-slate-900 dark:text-white">{{ $book->id }}</span>
                 </div>
             </div>
         </header>
 
-        <section class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-200/80">
+        <!-- Edit Form Section -->
+        <section class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm dark:shadow-lg">
             <form action="{{ route('book.update', $book->id) }}" method="POST" class="space-y-6">
                 @csrf
                 @method('PUT')
 
                 @if (session('hasil'))
-                    <div class="rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4 text-sm text-emerald-700">
-                        {{ session('hasil') }}
+                    <div class="rounded-lg border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950 px-5 py-4 text-sm text-sky-900 dark:text-sky-100">
+                        ✓ {{ session('hasil') }}
                     </div>
                 @endif
 
                 <div class="grid gap-6 sm:grid-cols-2">
                     <label class="block">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Judul Buku</span>
+                        <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Judul Buku</span>
                         <input type="text" name="judul" autocomplete="off" value="{{ $book->judul }}"
-                            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100"
+                            class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-900"
                             placeholder="Masukkan judul buku" />
                     </label>
                     <label class="block">
-                        <span class="mb-2 block text-sm font-medium text-slate-700">Jumlah Halaman</span>
-                        <input type="number" name="jumlah_halaman" autocomplete="off"
-                            value="{{ $book->jumlah_halaman }}"
-                            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100"
+                        <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Jumlah Halaman</span>
+                        <input type="number" name="jumlah_halaman" autocomplete="off" value="{{ $book->jumlah_halaman }}"
+                            class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-900"
                             placeholder="Masukkan jumlah halaman" />
                     </label>
                 </div>
 
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-6 border-t border-slate-200 dark:border-slate-800">
                     <a href="{{ route('book.index') }}"
-                        class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">
-                        Kembali ke Daftar Buku
+                        class="inline-flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition">
+                        ← Kembali ke Daftar
                     </a>
                     <button type="submit"
-                        class="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-                        Simpan Perubahan
+                        class="inline-flex items-center justify-center rounded-lg bg-sky-600 hover:bg-sky-700 dark:bg-sky-700 dark:hover:bg-sky-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition">
+                        💾 Simpan Perubahan
                     </button>
                 </div>
             </form>
         </section>
     </div>
-</body>
 
 </html>
