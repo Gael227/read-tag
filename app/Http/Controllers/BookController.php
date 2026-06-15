@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Annotate;
 use App\Models\Book;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
     /**
-     * Display all books with unique tags.
+     * Menampilkan daftar semua buku beserta tag unik.
+     *
+     * Digunakan untuk halaman utama manajemen buku.
      */
-    public function index()
+    public function index(): View
     {
         $books = Book::all();
         $allTags = $this->getAllUniqueTags();
@@ -20,13 +24,15 @@ class BookController extends Controller
     }
 
     /**
-     * Store a newly created book.
+     * Menyimpan buku baru ke dalam database.
+     *
+     * Judul buku akan otomatis dikonversi ke huruf kapital.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'judul' => 'required',
-            'jumlah_halaman' => 'required|numeric',
+            'judul' => 'required|string|max:255',
+            'jumlah_halaman' => 'required|integer|min:1',
         ]);
 
         Book::create([
@@ -38,21 +44,25 @@ class BookController extends Controller
     }
 
     /**
-     * Show edit form for specific book.
+     * Menampilkan form edit untuk buku tertentu.
+     *
+     * Route model binding secara otomatis mengambil buku berdasarkan ID.
      */
-    public function edit(Book $book)
+    public function edit(Book $book): View
     {
         return view('book-edit', compact('book'));
     }
 
     /**
-     * Update specified book.
+     * Memperbarui data buku yang sudah ada.
+     *
+     * Judul buku akan dikonversi ke huruf kapital sebelum disimpan.
      */
-    public function update(Request $request, Book $book)
+    public function update(Request $request, Book $book): RedirectResponse
     {
         $validated = $request->validate([
-            'judul' => 'required',
-            'jumlah_halaman' => 'required|numeric',
+            'judul' => 'required|string|max:255',
+            'jumlah_halaman' => 'required|integer|min:1',
         ]);
 
         $book->update([
@@ -64,19 +74,26 @@ class BookController extends Controller
     }
 
     /**
-     * Display book details with its annotations.
+     * Menampilkan detail buku beserta anotasi-anotasinya.
+     *
+     * Anotasi diurutkan berdasarkan nomor halaman secara ascending.
      */
-    public function show(Book $book)
+    public function show(Book $book): View
     {
-        $annotates = $book->annotates()->orderBy('halaman', 'asc')->get();
+        $annotates = $book->annotates()
+            ->orderBy('halaman', 'asc')
+            ->get();
 
         return view('book-detail', compact('book', 'annotates'));
     }
 
     /**
-     * Search annotations by tag or note content.
+     * Mencari anotasi berdasarkan tag atau isi catatan.
+     *
+     * Hasil pencarian akan menampilkan semua buku dan tag unik
+     * untuk memungkinkan filter ulang.
      */
-    public function search(Request $request)
+    public function search(Request $request): View
     {
         $query = $request->input('q');
 
@@ -93,9 +110,12 @@ class BookController extends Controller
     }
 
     /**
-     * Delete book and its annotations.
+     * Menghapus buku beserta semua anotasinya.
+     *
+     * Anotasi akan dihapus terlebih dahulu sebelum buku dihapus
+     * untuk menjaga integritas data referensial.
      */
-    public function destroy(Book $book)
+    public function destroy(Book $book): RedirectResponse
     {
         $book->annotates()->delete();
         $book->delete();
@@ -104,7 +124,10 @@ class BookController extends Controller
     }
 
     /**
-     * Get all unique tags from annotations.
+     * Mengambil semua tag unik dari semua anotasi.
+     *
+     * Tag dipisahkan menggunakan spasi sebagai delimiter.
+     * Hasil dikembalikan sebagai array dengan nilai unik.
      */
     private function getAllUniqueTags(): array
     {
