@@ -124,6 +124,25 @@ class BookController extends Controller
     }
 
     /**
+     * Memperbarui progress membaca buku.
+     *
+     * Halaman terakhir tidak boleh melebihi total halaman buku.
+     */
+    public function updateProgress(Request $request, Book $book): RedirectResponse
+    {
+        $validated = $request->validate([
+            'halaman_terakhir' => "required|integer|min:0|max:{$book->jumlah_halaman}",
+        ]);
+
+        $book->update([
+            'halaman_terakhir' => $validated['halaman_terakhir'],
+            'selesai' => $validated['halaman_terakhir'] >= $book->jumlah_halaman,
+        ]);
+
+        return redirect('book')->with('hasil', 'PROGRESS BERHASIL DIPERBARUI');
+    }
+
+    /**
      * Mengambil semua tag unik dari semua anotasi.
      *
      * Tag dipisahkan menggunakan spasi sebagai delimiter.

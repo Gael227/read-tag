@@ -136,7 +136,7 @@
                     Perpustakaan Saya
                 </h1>
                 <div class="flex items-center gap-2 shrink-0">
-                    <span class="text-xs text-zinc-400 dark:text-zinc-500">{{ $book->count() }} buku</span>
+                    <span class="text-xs text-zinc-400 dark:text-zinc-500">{{ $books->count() }} buku</span>
                     <button id="toggle-form-btn"
                         class="h-8 px-4 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-700 dark:hover:bg-zinc-300 transition">
                         + Tambah
@@ -247,9 +247,9 @@
 
             {{-- BOOK GRID --}}
         @else
-            @if ($book->count() > 0)
+            @if ($books->count() > 0)
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    @foreach ($book as $index => $b)
+                    @foreach ($books as $index => $b)
                         <div
                             class="book-card anim-fade-up anim-delay-{{ min($index + 1, 3) }} group rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden hover:border-zinc-400 dark:hover:border-zinc-600">
                             <a href="/book/{{ $b->id }}" class="block">
@@ -272,8 +272,34 @@
                                     <p class="text-xs text-zinc-400 dark:text-zinc-500 font-mono">
                                         {{ $b->jumlah_halaman }} hal.</p>
                                 </a>
+
+                                {{-- Progress Tracker --}}
+                                <div class="mt-2 mb-3">
+                                    <div class="flex items-center justify-between text-xs mb-1">
+                                        <span class="text-zinc-500 dark:text-zinc-400">Progress</span>
+                                        <span class="text-zinc-600 dark:text-zinc-300 font-medium">
+                                            {{ $b->progress_percentage }}%
+                                        </span>
+                                    </div>
+                                    <div class="h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-zinc-900 dark:bg-zinc-100 rounded-full transition-all duration-300"
+                                            style="width: {{ $b->progress_percentage }}%"></div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="flex items-center gap-1.5 px-4 pb-4">
+                                {{-- Progress Form --}}
+                                <form action="{{ route('book.update-progress', $b->id) }}" method="POST"
+                                    class="flex-1 flex items-center gap-1">
+                                    @csrf
+                                    <div class="relative">
+                                        <input type="number" name="halaman_terakhir"
+                                            value="{{ $b->halaman_terakhir }}" min="0"
+                                            max="{{ $b->jumlah_halaman }}"
+                                            class="w-20 h-7 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2 text-xs text-center text-zinc-900 dark:text-zinc-100 outline-none transition focus:border-zinc-500 dark:focus:border-zinc-400"
+                                            onchange="this.form.submit()" aria-label="Update progress halaman" />
+                                    </div>
+                                </form>
                                 <a href="/book/{{ $b->id }}"
                                     class="flex-1 h-7 flex items-center justify-center rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-medium hover:bg-zinc-700 dark:hover:bg-zinc-300 transition">
                                     Buka →
